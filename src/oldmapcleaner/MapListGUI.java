@@ -6,6 +6,7 @@
 package oldmapcleaner;
 
 import java.awt.image.BufferedImage;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.List;
 import javax.swing.DefaultListModel;
@@ -29,8 +30,9 @@ public class MapListGUI extends javax.swing.JFrame {
     private List<MapInfo> maps;
     private DefaultListModel showLst;
     private String lobbyCashePath;
-    public long statAllSize,statUnusedSize;
-    public int statUnusingMaps, statUsedPlays;
+    public long statAllSize, statUnusedSize, statToDeleteSize;
+    public int statUnusingMaps, statUsedPlays, statToDeleteCount;
+    public float statAverageUsedPerPlayableMap;
     private static final int UNUSED_LIMIT=0;// level for check unused maps
     
     public void setMapList(List<MapInfo> _maps,String _lobbyCashePath) {
@@ -38,10 +40,9 @@ public class MapListGUI extends javax.swing.JFrame {
         this.lobbyCashePath=_lobbyCashePath;
         showLst = new DefaultListModel();
         
-        statAllSize=statUnusedSize=0;
-        statUnusingMaps=statUsedPlays=0;
-        for (MapInfo mi:maps) {
-            showLst.addElement(mi.name);
+        statAllSize=statUnusedSize=statToDeleteSize=0;
+        statUnusingMaps=statUsedPlays=statToDeleteCount=0;
+        for (MapInfo mi:maps) { // collect the statistic
             statAllSize+=mi.fileSize;
             if (mi.count<=UNUSED_LIMIT) {
                 statUnusedSize+=mi.fileSize;
@@ -49,15 +50,42 @@ public class MapListGUI extends javax.swing.JFrame {
             } else {
                 statUsedPlays+=mi.count;
             }
+            if (mi.markToDelete) {
+                statToDeleteSize+=mi.fileSize;
+                statToDeleteCount++;
+            }
         }
+        int usingMaps=maps.size()-statUnusingMaps;
+        if (usingMaps!=0) {
+            statAverageUsedPerPlayableMap = (float)statUsedPlays / (float)usingMaps;
+        } else statAverageUsedPerPlayableMap = 0;
         
+        for (MapInfo mi:maps) // add items
+            showLst.addElement(mapListItemDecorator(mi));
         jListMaps.setModel(showLst);
-        String txt="All "+maps.size()+" maps of "+fileSizeToStr(statAllSize)+" size." // TODO file size kb/mb/gb...
-                + "No used "+statUnusingMaps+" maps ("+showPercent(statUnusingMaps,maps.size())+") of "+fileSizeToStr(statUnusedSize)+" size.";
-        jlTotalInfo.setText(txt);
+        
+        DecimalFormat floatFormat = new DecimalFormat("#0.0");
+        
+        String txt="All "+maps.size()+" maps of "+fileSizeToStr(statAllSize)+" size."
+                + " Average "+floatFormat.format(statAverageUsedPerPlayableMap)+" play per using maps."
+                + "<br>No used "+statUnusingMaps+" maps ("+showPercent(statUnusingMaps,maps.size())+") of "+fileSizeToStr(statUnusedSize)+" size.";
+        jlTotalInfo.setText("<html>"+txt+"</html>");
         //TODO refresh selection and show info.
     }
 
+    protected String mapListItemDecorator(MapInfo mi) {
+        String name=mi.name;
+        if (mi.count<=UNUSED_LIMIT) name="<i>"+name+"</i>";
+        else if (mi.count>statAverageUsedPerPlayableMap) {
+            name="<b>"+name+"</b>";
+        }
+        if (mi.markToDelete) {//TODO improvement style
+            return "<html><s><font color=red>"+name+"</font></s></html>";
+        } else {
+            return "<html>"+name+"</html>";
+        }
+    }
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -82,7 +110,7 @@ public class MapListGUI extends javax.swing.JFrame {
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Old map cleaner - for Spring RTS");
 
-        jLabel3.setText("Maps list");
+        jLabel3.setText("Maps list, use Delete/Insert");
 
         jListMaps.setModel(new javax.swing.AbstractListModel() {
             String[] strings = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" };
@@ -95,8 +123,8 @@ public class MapListGUI extends javax.swing.JFrame {
             }
         });
         jListMaps.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyTyped(java.awt.event.KeyEvent evt) {
-                jListMapsKeyTyped(evt);
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                jListMapsKeyPressed(evt);
             }
         });
         jScrollPane2.setViewportView(jListMaps);
@@ -107,7 +135,7 @@ public class MapListGUI extends javax.swing.JFrame {
             jPanel_MapsListLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel_MapsListLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jLabel3, javax.swing.GroupLayout.DEFAULT_SIZE, 217, Short.MAX_VALUE)
+                .addComponent(jLabel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addContainerGap())
             .addComponent(jScrollPane2)
         );
@@ -138,7 +166,7 @@ public class MapListGUI extends javax.swing.JFrame {
                     .addComponent(jlSelectMapName, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jlSelectMapInfo, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
-            .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 431, Short.MAX_VALUE)
+            .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 325, Short.MAX_VALUE)
         );
         jPanelSelectedInfoLayout.setVerticalGroup(
             jPanelSelectedInfoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -222,13 +250,23 @@ public class MapListGUI extends javax.swing.JFrame {
         jlSelectMapInfo.setText("<html>"+txt+"</html>");
     }//GEN-LAST:event_jListMapsValueChanged
 
-    private void jListMapsKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jListMapsKeyTyped
-        // TODO add your handling code here:
-        if (evt.getKeyChar()=='-') {
-            //TODO !!!!!!!!!!!!;
-            showLst.setElementAt("-", jListMaps.getSelectedIndex());
+    private void jListMapsKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jListMapsKeyPressed
+        int itmId=jListMaps.getSelectedIndex();  //TODO multi-selection support
+        if (itmId==-1) return;
+        MapInfo mi=maps.get(itmId);
+        if (evt.getKeyCode()==evt.VK_BACK_SPACE || evt.getKeyCode()==evt.VK_DELETE) {
+            if (!mi.markToDelete) {
+                mi.markToDelete=true;
+                showLst.setElementAt(mapListItemDecorator(mi), itmId);
+            }
         }
-    }//GEN-LAST:event_jListMapsKeyTyped
+        if (evt.getKeyCode()==evt.VK_INSERT) {
+            if (mi.markToDelete) {
+                mi.markToDelete=false;
+                showLst.setElementAt(mapListItemDecorator(mi), itmId);
+            }
+        }
+    }//GEN-LAST:event_jListMapsKeyPressed
 
     /**
      * @param args the command line arguments

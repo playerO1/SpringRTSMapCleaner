@@ -85,20 +85,20 @@ public class MapInfo {
     	/**
 	* Load prewiev of map from lobby cashe
 	* and add it to memory cashe into mi
-	* @param pathToLobbyCashe must end with pathSeparator().
+	* @param pathToLobbyCashe if null then do not load, use only memory cashe.
 	**/
     public BufferedImage loadPrewiev(String pathToLobbyCashe) {
         BufferedImage img=null;
         if (prewiev!=null) img=prewiev.get();
-        if (img==null) {
+        if (img==null && pathToLobbyCashe!=null) {
             String fileName=name+".minimap.png";
-            File imgF=new File(pathToLobbyCashe+fileName);
+            File imgF=new File(pathToLobbyCashe,fileName);
             if (IS_LINUX_FS) { // TODO it is not good bug fix for ignore map name case
                 if (!imgF.exists()) {
                     imgF=new File(pathToLobbyCashe);
                     for (String n:imgF.list()) if (fileName.equalsIgnoreCase(n)) {
                         fileName=n;
-                        imgF=new File(pathToLobbyCashe+fileName);
+                        imgF=new File(pathToLobbyCashe,fileName);
                         break;
                     };
                 }
