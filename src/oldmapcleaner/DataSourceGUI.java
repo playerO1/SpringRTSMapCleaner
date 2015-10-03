@@ -9,13 +9,15 @@ import java.awt.Color;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
+import javax.swing.JOptionPane;
 import static oldmapcleaner.OldMapCleaner.applyStatistics;
 
 /**
  *
  * @author PlayerO1
  */
-public class DataSourceGUI extends javax.swing.JFrame {
+public class DataSourceGUI extends javax.swing.JFrame implements MapUpdateListener {
 
     public ArrayList<MapInfo> maps, demos;
     public String mapsPath, demosPath, lobbyMapCashePath;
@@ -27,7 +29,7 @@ public class DataSourceGUI extends javax.swing.JFrame {
     public DataSourceGUI() {
         initComponents();
         defaultTextBackground=jTxtCashe.getBackground();
-        
+        OldMapCleaner.addNotifyListener(this);
         String workPath=""; //System.getProperty("user.home")+File.separator;
         
         mapsPath=jTxtMaps.getText();
@@ -80,9 +82,16 @@ public class DataSourceGUI extends javax.swing.JFrame {
         jButtonOpenGUIList = new javax.swing.JButton();
         jLabel1 = new javax.swing.JLabel();
         jCBSortBy = new javax.swing.JComboBox();
+        jBtnDoClear = new javax.swing.JButton();
+        jLabelAbout = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Map cleaner for Spring RTS");
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            public void windowClosed(java.awt.event.WindowEvent evt) {
+                formWindowClosed(evt);
+            }
+        });
 
         jPanelMaps.setBorder(javax.swing.BorderFactory.createTitledBorder("Spring RTS map folder"));
 
@@ -177,6 +186,9 @@ public class DataSourceGUI extends javax.swing.JFrame {
                     .addComponent(jButtonLoadDemo, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)))
         );
 
+        jPanel1.setToolTipText("");
+        jPanel1.setName("AboutLink"); // NOI18N
+
         jButtonOpenGUIList.setText("Show map list");
         jButtonOpenGUIList.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -189,18 +201,35 @@ public class DataSourceGUI extends javax.swing.JFrame {
         jCBSortBy.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "no sort", "name", "playing", "size", "last using date", "effective" }));
         jCBSortBy.setSelectedIndex(1);
 
+        jBtnDoClear.setText("Remove selected maps");
+        jBtnDoClear.setEnabled(false);
+        jBtnDoClear.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jBtnDoClearActionPerformed(evt);
+            }
+        });
+
+        jLabelAbout.setText("<html><u>(C) PlayerO1 2015, GNU GPL V2</u></html>");
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jButtonOpenGUIList)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jLabel1)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jCBSortBy, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addComponent(jButtonOpenGUIList)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jLabel1)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jCBSortBy, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jBtnDoClear))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jLabelAbout, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -210,7 +239,11 @@ public class DataSourceGUI extends javax.swing.JFrame {
                     .addComponent(jButtonOpenGUIList)
                     .addComponent(jLabel1)
                     .addComponent(jCBSortBy, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(55, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jBtnDoClear)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jLabelAbout, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -306,6 +339,19 @@ public class DataSourceGUI extends javax.swing.JFrame {
         //TODO launch GUI, apply statistics!!
     }//GEN-LAST:event_jButtonOpenGUIListActionPerformed
 
+    private void formWindowClosed(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosed
+        OldMapCleaner.removeNotifyListener(this);
+    }//GEN-LAST:event_formWindowClosed
+
+    private void jBtnDoClearActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jBtnDoClearActionPerformed
+        // TODO add your handling code here:
+        ArrayList<MapInfo> toDeleteSelect=OldMapCleaner.selectByDeleting(maps, true);
+        MapListGUI guiForm=new MapListGUI();
+        guiForm.setMapList(toDeleteSelect, lobbyMapCashePath);
+        guiForm.setVisible(true);
+        JOptionPane.showMessageDialog(this, "Test ok. To do remove.");
+    }//GEN-LAST:event_jBtnDoClearActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -342,11 +388,13 @@ public class DataSourceGUI extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton jBtnDoClear;
     private javax.swing.JButton jBtnLoadMaps;
     private javax.swing.JButton jButtonLoadDemo;
     private javax.swing.JButton jButtonOpenGUIList;
     private javax.swing.JComboBox jCBSortBy;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabelAbout;
     private javax.swing.JLabel jLabelDemoStatus;
     private javax.swing.JLabel jLblMapStatus;
     private javax.swing.JPanel jPanel1;
@@ -357,4 +405,20 @@ public class DataSourceGUI extends javax.swing.JFrame {
     private javax.swing.JTextField jTxtDemo;
     private javax.swing.JTextField jTxtMaps;
     // End of variables declaration//GEN-END:variables
+
+    @Override
+    public void onMapUpdate(List<MapInfo> modifedObjects) {
+        int toRemoveCount=0; long toRemoveSize=0;
+        for (MapInfo mi:maps) if (mi.markToDelete) {
+            toRemoveCount++;
+            toRemoveSize+=mi.fileSize;
+        }
+        if (toRemoveSize>0) {
+            jBtnDoClear.setEnabled(true);
+            jBtnDoClear.setText("Remove "+toRemoveCount+" maps ("+OldMapCleaner.fileSizeToStr(toRemoveSize)+")");
+        } else {
+            jBtnDoClear.setEnabled(false);
+            jBtnDoClear.setText("Remove selected maps");
+        }
+    }
 }

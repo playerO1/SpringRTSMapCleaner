@@ -6,8 +6,8 @@
 package oldmapcleaner;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
+import java.util.List;
 
 /**
  *
@@ -29,15 +29,47 @@ public class OldMapCleaner {
         return (part*1000/all)/10.0+"%";
     }
     
+    private static ArrayList<MapUpdateListener> notifyList=new ArrayList<MapUpdateListener>();
+
+    /**
+     * Notify all window about list data update. Without fromEditor window.
+     */
+    public static void notifyListUpdate(MapUpdateListener fromEditor, List<MapInfo> modifedObjects) {
+        for (MapUpdateListener listener:notifyList) 
+            if (listener!=fromEditor) listener.onMapUpdate(modifedObjects);
+    }
+    
+    /**
+     * Notify all window about list data update. Without fromEditor window.
+     */
+    public static void notifyListUpdate(MapUpdateListener fromEditor, MapInfo modifedObject) {
+        ArrayList<MapInfo> modifedLst=new ArrayList<MapInfo>(1);
+        modifedLst.add(modifedObject);
+        notifyListUpdate(fromEditor, modifedLst);
+    }
+    
+    public static boolean addNotifyListener(MapUpdateListener fromEditor) {
+        if (notifyList.contains(fromEditor)) return false;
+        return notifyList.add(fromEditor);
+    }
+    public static boolean removeNotifyListener(MapUpdateListener fromEditor) {
+        return notifyList.remove(fromEditor);
+    }    
+    
     /**
      * @param args the command line arguments
      */
     public static void main(String[] args) {
+        /*
         String springPath="/home/user2/.config/spring/";
         String demosPath=springPath+"demos";
         String mapsPath=springPath+"maps";
         String lobbyMapCashePath="/home/user2/.springlobby/cache/";
+        */
 
+        DataSourceGUI.main(args);
+        
+        /*
         System.out.println("Scan path "+demosPath);
 
         //ArrayList<String> demos=parseMapNames.parseFromDemosFolder(demosPath);
@@ -65,6 +97,8 @@ public class OldMapCleaner {
         guiForm.setVisible(true);
         
         System.out.println("End.");
+        
+        */
     }
 
     public static ArrayList<MapInfo> selectByDeleting(ArrayList<MapInfo> from,boolean whereToDelete) {
@@ -123,6 +157,8 @@ public class OldMapCleaner {
             return a.name.compareTo(b.name)*INVERT;
         }
     }
+    
+    //TODO add sort by name length
 
     public static class SortByCount extends MapInfoDescComparator {
       

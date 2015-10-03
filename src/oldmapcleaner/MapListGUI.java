@@ -8,6 +8,7 @@ package oldmapcleaner;
 import java.awt.image.BufferedImage;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.List;
 import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;
@@ -18,16 +19,18 @@ import static oldmapcleaner.OldMapCleaner.showPercent;
  *
  * @author PlayerO1
  */
-public class MapListGUI extends javax.swing.JFrame {
+public class MapListGUI extends javax.swing.JFrame implements MapUpdateListener{
 
     /**
      * Creates new form MapListGUI
      */
     public MapListGUI() {
         initComponents();
+        OldMapCleaner.addNotifyListener(this);
     }
     
     private List<MapInfo> maps;
+    private List<MapInfo> mapsDataSource; // real data source, can be modifed then send onMapUpdate
     private DefaultListModel showLst;
     private String lobbyCashePath;
     public long statAllSize, statUnusedSize, statToDeleteSize;
@@ -35,10 +38,22 @@ public class MapListGUI extends javax.swing.JFrame {
     public float statAverageUsedPerPlayableMap;
     private static final int UNUSED_LIMIT=0;// level for check unused maps
     
+    private MapInfo currentShowingMap=null;// map in jPanelSelectedInfo
+    /**
+     * Set data source then init visual list component.
+     * @param _maps
+     * @param _lobbyCashePath 
+     */
     public void setMapList(List<MapInfo> _maps,String _lobbyCashePath) {
-        this.maps=_maps;
+        this.mapsDataSource=_maps;
         this.lobbyCashePath=_lobbyCashePath;
+        this.maps=new ArrayList<MapInfo>(_maps); // clone for retain index
         showLst = new DefaultListModel();
+        
+        if (currentShowingMap!=null) {
+            showSelectedInfoFor(null);
+            //TODO what doing with selected item index for jList?
+        }
         
         statAllSize=statUnusedSize=statToDeleteSize=0;
         statUnusingMaps=statUsedPlays=statToDeleteCount=0;
@@ -107,8 +122,13 @@ public class MapListGUI extends javax.swing.JFrame {
         jPanelBottomAllStats = new javax.swing.JPanel();
         jlTotalInfo = new javax.swing.JLabel();
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Old map cleaner - for Spring RTS");
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            public void windowClosed(java.awt.event.WindowEvent evt) {
+                formWindowClosed(evt);
+            }
+        });
 
         jLabel3.setText("Maps list, use Delete/Insert");
 
@@ -230,6 +250,18 @@ public class MapListGUI extends javax.swing.JFrame {
 
     private void jListMapsValueChanged(javax.swing.event.ListSelectionEvent evt) {//GEN-FIRST:event_jListMapsValueChanged
         MapInfo mi=maps.get(jListMaps.getSelectedIndex());//TODO multiselect
+        showSelectedInfoFor(mi);
+    }//GEN-LAST:event_jListMapsValueChanged
+
+    private void showSelectedInfoFor(MapInfo mi) {
+        currentShowingMap=mi;
+        if (mi==null) {
+            jlSelectMapName.setText("Selected map");
+            jlPrewiew.setIcon(null);
+            jlPrewiew.setText("Maps preview from cashe");
+            jlSelectMapInfo.setText("size, uses, dates, etc.");
+            return;
+        }
         jlSelectMapName.setText(mi.name);
         BufferedImage img=mi.loadPrewiev(lobbyCashePath);
         if (img==null) {
@@ -247,26 +279,44 @@ public class MapListGUI extends javax.swing.JFrame {
                 txt+="First "+dateFormat.format(mi.firstTime)+"; ";
             txt+="Last <b>"+dateFormat.format(mi.lastTime)+"</b>";
         }
+        if (mi.markToDelete) txt+="<br><font color=red>(mark to delete)</font>";
         jlSelectMapInfo.setText("<html>"+txt+"</html>");
-    }//GEN-LAST:event_jListMapsValueChanged
-
+    }
+    
     private void jListMapsKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jListMapsKeyPressed
-        int itmId=jListMaps.getSelectedIndex();  //TODO multi-selection support
-        if (itmId==-1) return;
-        MapInfo mi=maps.get(itmId);
-        if (evt.getKeyCode()==evt.VK_BACK_SPACE || evt.getKeyCode()==evt.VK_DELETE) {
-            if (!mi.markToDelete) {
-                mi.markToDelete=true;
-                showLst.setElementAt(mapListItemDecorator(mi), itmId);
+        int itmSelectId=jListMaps.getSelectedIndex();
+        if (itmSelectId==-1) return;
+        ArrayList<MapInfo> modifed=new ArrayList<MapInfo>();
+        
+        for (int itmId:jListMaps.getSelectedIndices()) {
+            MapInfo mi=maps.get(itmId);
+            if (evt.getKeyCode()==evt.VK_BACK_SPACE || evt.getKeyCode()==evt.VK_DELETE) {
+                if (!mi.markToDelete) {
+                    mi.markToDelete=true;
+                    showLst.setElementAt(mapListItemDecorator(mi), itmId);
+                    if (currentShowingMap==mi) showSelectedInfoFor(mi);
+                    modifed.add(mi);
+                }
+            }
+            if (evt.getKeyCode()==evt.VK_INSERT) {
+                if (mi.markToDelete) {
+                    mi.markToDelete=false;
+                    showLst.setElementAt(mapListItemDecorator(mi), itmId);
+                    if (currentShowingMap==mi) showSelectedInfoFor(mi);
+                    modifed.add(mi);
+                }
             }
         }
-        if (evt.getKeyCode()==evt.VK_INSERT) {
-            if (mi.markToDelete) {
-                mi.markToDelete=false;
-                showLst.setElementAt(mapListItemDecorator(mi), itmId);
-            }
+        
+        if (!modifed.isEmpty()) {
+            OldMapCleaner.notifyListUpdate(this, modifed);
         }
     }//GEN-LAST:event_jListMapsKeyPressed
+
+    private void formWindowClosed(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosed
+        // TODO add your handling code here:
+        OldMapCleaner.removeNotifyListener(this);
+    }//GEN-LAST:event_formWindowClosed
 
     /**
      * @param args the command line arguments
@@ -316,4 +366,24 @@ public class MapListGUI extends javax.swing.JFrame {
     private javax.swing.JLabel jlSelectMapName;
     private javax.swing.JLabel jlTotalInfo;
     // End of variables declaration//GEN-END:variables
+
+    @Override
+    public void onMapUpdate(List<MapInfo> modifedObjects) {
+        if (modifedObjects!=null && !modifedObjects.isEmpty()) { //TODO work great that 1 object too.
+            for (MapInfo mi:modifedObjects) {
+                int itmId=maps.indexOf(mi);
+                if (itmId!=-1)  {
+                    showLst.setElementAt(mapListItemDecorator(mi), itmId);
+                    if (currentShowingMap==mi) showSelectedInfoFor(mi);
+                    return;
+                } else { // if remove map from list
+                    if (currentShowingMap==mi) showSelectedInfoFor(null);
+                }
+            }
+        }
+        //TODO or If mapsDataSource modifed <> maps... compare by size?
+        setMapList(mapsDataSource,lobbyCashePath); //just reinit list box.
+        //TODO too much lags with DefaultListModel update.
+    }
+    
 }
