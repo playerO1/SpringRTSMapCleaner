@@ -7,11 +7,13 @@ package oldmapcleaner;
 
 import java.awt.Color;
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import javax.swing.JOptionPane;
 import static oldmapcleaner.OldMapCleaner.applyStatistics;
+import static oldmapcleaner.OldMapCleaner.autoChangeToDeleteStatus;
 
 /**
  *
@@ -22,6 +24,9 @@ public class DataSourceGUI extends javax.swing.JFrame implements MapUpdateListen
     public ArrayList<MapInfo> maps, demos;
     public String mapsPath, demosPath, lobbyMapCashePath;
     private Color defaultTextBackground;
+    
+// TODO default path of some specific OS and Spring engine
+// TODO drag&drop folder
     
     /**
      * Creates new form DataSourceGUI
@@ -84,6 +89,8 @@ public class DataSourceGUI extends javax.swing.JFrame implements MapUpdateListen
         jCBSortBy = new javax.swing.JComboBox();
         jBtnDoClear = new javax.swing.JButton();
         jLabelAbout = new javax.swing.JLabel();
+        jButtonShowToDelete = new javax.swing.JButton();
+        jCBAutoMarkToDelete = new javax.swing.JCheckBox();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Map cleaner for Spring RTS");
@@ -128,7 +135,7 @@ public class DataSourceGUI extends javax.swing.JFrame implements MapUpdateListen
                 .addGroup(jPanelMapsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLblMapStatus)
                     .addComponent(jBtnLoadMaps))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(28, Short.MAX_VALUE))
         );
 
         jPanelLobbyCashe.setBorder(javax.swing.BorderFactory.createTitledBorder("Spring Lobby cashe folder for prewiew"));
@@ -149,7 +156,7 @@ public class DataSourceGUI extends javax.swing.JFrame implements MapUpdateListen
             .addComponent(jTxtCashe, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
         );
 
-        jPanelDemos.setBorder(javax.swing.BorderFactory.createTitledBorder("Spring Lobby cashe folder for prewiew"));
+        jPanelDemos.setBorder(javax.swing.BorderFactory.createTitledBorder("Spring replays folder"));
 
         jTxtDemo.setText(".config/spring/demos");
 
@@ -210,6 +217,22 @@ public class DataSourceGUI extends javax.swing.JFrame implements MapUpdateListen
         });
 
         jLabelAbout.setText("<html><u>(C) PlayerO1 2015, GNU GPL V2</u></html>");
+        jLabelAbout.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jLabelAboutMouseClicked(evt);
+            }
+        });
+
+        jButtonShowToDelete.setText("show to delete list");
+        jButtonShowToDelete.setToolTipText("Show only select to delete maps");
+        jButtonShowToDelete.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonShowToDeleteActionPerformed(evt);
+            }
+        });
+
+        jCBAutoMarkToDelete.setSelected(true);
+        jCBAutoMarkToDelete.setText("auto mark old");
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -223,8 +246,13 @@ public class DataSourceGUI extends javax.swing.JFrame implements MapUpdateListen
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jLabel1)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jCBSortBy, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(jBtnDoClear))
+                        .addComponent(jCBSortBy, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jCBAutoMarkToDelete))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addComponent(jBtnDoClear)
+                        .addGap(18, 18, 18)
+                        .addComponent(jButtonShowToDelete)))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -235,12 +263,16 @@ public class DataSourceGUI extends javax.swing.JFrame implements MapUpdateListen
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jButtonOpenGUIList)
-                    .addComponent(jLabel1)
-                    .addComponent(jCBSortBy, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(jButtonOpenGUIList)
+                        .addComponent(jLabel1)
+                        .addComponent(jCBSortBy, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jCBAutoMarkToDelete))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jBtnDoClear)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jBtnDoClear)
+                    .addComponent(jButtonShowToDelete))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jLabelAbout, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
@@ -278,6 +310,7 @@ public class DataSourceGUI extends javax.swing.JFrame implements MapUpdateListen
 
     private void jBtnLoadMapsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jBtnLoadMapsActionPerformed
         mapsPath=jTxtMaps.getText();
+        if (!mapsPath.endsWith(File.separator)) mapsPath+=File.separator;
         File path=new File(mapsPath);
         if (!path.exists()) {
             jLblMapStatus.setText(pathNotFoundDecorator(mapsPath));
@@ -289,18 +322,22 @@ public class DataSourceGUI extends javax.swing.JFrame implements MapUpdateListen
 
     private void jButtonLoadDemoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonLoadDemoActionPerformed
         demosPath=jTxtDemo.getText();
+        if (!demosPath.endsWith(File.separator)) demosPath+=File.separator;
         File path=new File(demosPath);
         if (!path.exists()) {
             jLabelDemoStatus.setText(pathNotFoundDecorator(demosPath));
         } else {
-            demos=parseMapNames.parseMIFromDemosFolder(demosPath);; // TODO load from 2 or more different path and add into one list.
+            demos=parseMapNames.parseMIFromDemosFolder(demosPath); // TODO load from 2 or more different path and add into one list.
             jLabelDemoStatus.setText("Read demo files for "+demos.size()+" maps.");
         }
     }//GEN-LAST:event_jButtonLoadDemoActionPerformed
 
     private void jButtonOpenGUIListActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonOpenGUIListActionPerformed
-        // TODO add your handling code here:
+        if (maps.isEmpty()) jBtnLoadMapsActionPerformed(null); // if user forgot press it
+        if (demos.isEmpty()) jButtonLoadDemoActionPerformed(null);
+        
         lobbyMapCashePath=jTxtCashe.getText();
+        if (!lobbyMapCashePath.endsWith(File.separator)) lobbyMapCashePath+=File.separator;
         File path=new File(lobbyMapCashePath);
         if (!path.exists() || !path.isDirectory()) {
             jTxtCashe.setBackground(Color.red);
@@ -310,6 +347,11 @@ public class DataSourceGUI extends javax.swing.JFrame implements MapUpdateListen
         }
         
         applyStatistics(maps, demos, true); // initialize statistic to maps
+        
+        if (jCBAutoMarkToDelete.isSelected()) {
+            autoChangeToDeleteStatus(maps);
+            this.onMapUpdate(null); //TODO just refresh button, do not update.
+        }
         
         switch (jCBSortBy.getSelectedIndex()) {
             case 0: // do not sort
@@ -346,11 +388,62 @@ public class DataSourceGUI extends javax.swing.JFrame implements MapUpdateListen
     private void jBtnDoClearActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jBtnDoClearActionPerformed
         // TODO add your handling code here:
         ArrayList<MapInfo> toDeleteSelect=OldMapCleaner.selectByDeleting(maps, true);
+//        MapListGUI guiForm=new MapListGUI();
+//        guiForm.setMapList(toDeleteSelect, lobbyMapCashePath);
+//        guiForm.setVisible(true);
+        
+        ArrayList<File> toDeleteFiles=new ArrayList<File>();
+        for (MapInfo mi:toDeleteSelect) {
+            toDeleteFiles.addAll(parseMapNames.getExistMapFiles(mi.name, mapsPath, lobbyMapCashePath));
+        };
+        long filesSize=0;
+        for (File f:toDeleteFiles) filesSize+=f.length();
+
+        int doDelete = JOptionPane.showConfirmDialog(this, "Will be remove "+OldMapCleaner.fileSizeToStr(filesSize)+" size of "+toDeleteFiles.size()+" files.\nAre you sure?",
+                "Files to deleting", JOptionPane.YES_NO_OPTION);
+        if (doDelete == JOptionPane.YES_OPTION){
+            int deletingSuccess=0; long deletingSuccessSize=0;
+            for (File f:toDeleteFiles) {
+                long fSize=f.length();
+                boolean wasDeleting=false;
+                try {
+                    if (f.delete()) wasDeleting=true;
+                } catch (Exception e) {
+                    System.out.println("File "+f.getName()+" exceptin:"+e);
+                }
+                if (wasDeleting) {
+                    deletingSuccess++;
+                    deletingSuccessSize+=fSize;
+                    System.out.println("Deleted> "+f.getPath());
+                } else {
+                    System.out.println("Can not remove> "+f.getPath());
+                }
+            }
+            JOptionPane.showMessageDialog(this, "Removed "+OldMapCleaner.fileSizeToStr(deletingSuccessSize)+" size of "+deletingSuccess+" files.",
+                "Deleting finish",JOptionPane.INFORMATION_MESSAGE);
+            //TODO notify Update & refresh map list.
+        }
+
+    }//GEN-LAST:event_jBtnDoClearActionPerformed
+
+    private void jButtonShowToDeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonShowToDeleteActionPerformed
+        ArrayList<MapInfo> toDeleteSelect=OldMapCleaner.selectByDeleting(maps, true);
         MapListGUI guiForm=new MapListGUI();
         guiForm.setMapList(toDeleteSelect, lobbyMapCashePath);
         guiForm.setVisible(true);
-        JOptionPane.showMessageDialog(this, "Test ok. To do remove.");
-    }//GEN-LAST:event_jBtnDoClearActionPerformed
+    }//GEN-LAST:event_jButtonShowToDeleteActionPerformed
+
+    private void jLabelAboutMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabelAboutMouseClicked
+        String aboutMsg="Utility for help clear old and unusible maps from Spring RTS, and show statistics of using maps and hard disc space of store it."
+                +"\nUse demo files (replays) for collect statistic of playing on mpas and show using/unusing maps with preview images."
+                +"\nThe preview take from Spring lobby cashe. If you not set this parameter this program will be not show preview image. The casne can not have some of previev."
+                +"\nAt the start check selected directory, then press button \"load\" for read map file names."
+                +"\nAt the next step press button \"Show map list\" and select maps to delete (using delete key for mark and insert to unmark). Allow multiselection."
+                +"\nYou can open more that 1 lists of maps sorted by different parameters."
+                +"\nAt the final you should check list for remove by button \"show list\" then press \"Remove...\" to execure removing data of selected maps."
+                +"\n\nThis software distribute under GNU GPL v2 license. (C) 2015 PlayerO1 (http://github.com/playerO1).";
+        JOptionPane.showMessageDialog(this, aboutMsg);
+    }//GEN-LAST:event_jLabelAboutMouseClicked
 
     /**
      * @param args the command line arguments
@@ -392,6 +485,8 @@ public class DataSourceGUI extends javax.swing.JFrame implements MapUpdateListen
     private javax.swing.JButton jBtnLoadMaps;
     private javax.swing.JButton jButtonLoadDemo;
     private javax.swing.JButton jButtonOpenGUIList;
+    private javax.swing.JButton jButtonShowToDelete;
+    private javax.swing.JCheckBox jCBAutoMarkToDelete;
     private javax.swing.JComboBox jCBSortBy;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabelAbout;

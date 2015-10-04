@@ -36,7 +36,7 @@ public class MapListGUI extends javax.swing.JFrame implements MapUpdateListener{
     public long statAllSize, statUnusedSize, statToDeleteSize;
     public int statUnusingMaps, statUsedPlays, statToDeleteCount;
     public float statAverageUsedPerPlayableMap;
-    private static final int UNUSED_LIMIT=0;// level for check unused maps
+    protected static final int UNUSED_LIMIT=0;// level for check unused maps
     
     private MapInfo currentShowingMap=null;// map in jPanelSelectedInfo
     /**
@@ -369,17 +369,19 @@ public class MapListGUI extends javax.swing.JFrame implements MapUpdateListener{
 
     @Override
     public void onMapUpdate(List<MapInfo> modifedObjects) {
-        if (modifedObjects!=null && !modifedObjects.isEmpty()) { //TODO work great that 1 object too.
+        if (modifedObjects!=null && !modifedObjects.isEmpty()) {
+            boolean haveNotFound=false;
             for (MapInfo mi:modifedObjects) {
                 int itmId=maps.indexOf(mi);
                 if (itmId!=-1)  {
                     showLst.setElementAt(mapListItemDecorator(mi), itmId);
                     if (currentShowingMap==mi) showSelectedInfoFor(mi);
-                    return;
                 } else { // if remove map from list
                     if (currentShowingMap==mi) showSelectedInfoFor(null);
+                    haveNotFound=true;
                 }
             }
+            if (!haveNotFound) return;
         }
         //TODO or If mapsDataSource modifed <> maps... compare by size?
         setMapList(mapsDataSource,lobbyCashePath); //just reinit list box.

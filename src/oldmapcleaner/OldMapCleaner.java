@@ -1,17 +1,17 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ * Utils for find and remove old map in SPring RTS game.
+ * (C) PlayerO1 2015 (http://github.com/playerO1)
  */
 package oldmapcleaner;
 
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import static oldmapcleaner.MapListGUI.UNUSED_LIMIT;
 
 /**
  *
- * @author PlayerO1
+ * @author PlayerO1 (C) 2015 http://github.com/playerO1
  */
 public class OldMapCleaner {
 
@@ -26,17 +26,29 @@ public class OldMapCleaner {
     }
     
     public static String showPercent(long part, long all) {
+        if (all==0) return "\u221e%"; // division by zero fix :)
         return (part*1000/all)/10.0+"%";
     }
     
-    private static ArrayList<MapUpdateListener> notifyList=new ArrayList<MapUpdateListener>();
+    private final static ArrayList<MapUpdateListener> NOTIFY_LIST=new ArrayList<MapUpdateListener>();
 
     /**
      * Notify all window about list data update. Without fromEditor window.
+     * @param fromEditor do not send update to this object
+     * @param modifedObjects update date, or null if uncknown update or all was updated
      */
-    public static void notifyListUpdate(MapUpdateListener fromEditor, List<MapInfo> modifedObjects) {
-        for (MapUpdateListener listener:notifyList) 
+    public static void notifyListUpdate(final MapUpdateListener fromEditor,final List<MapInfo> modifedObjects) {
+        for (MapUpdateListener listener:NOTIFY_LIST) 
             if (listener!=fromEditor) listener.onMapUpdate(modifedObjects);
+/* //TODO check thread safe update
+        new Thread() { 
+            public void run() {
+                for (MapUpdateListener listener:NOTIFY_LIST) 
+                    if (listener!=fromEditor) synchronized (listener) {
+                        listener.onMapUpdate(modifedObjects);
+                    }
+            }
+        }.start(); */
     }
     
     /**
@@ -49,11 +61,11 @@ public class OldMapCleaner {
     }
     
     public static boolean addNotifyListener(MapUpdateListener fromEditor) {
-        if (notifyList.contains(fromEditor)) return false;
-        return notifyList.add(fromEditor);
+        if (NOTIFY_LIST.contains(fromEditor)) return false;
+        return NOTIFY_LIST.add(fromEditor);
     }
     public static boolean removeNotifyListener(MapUpdateListener fromEditor) {
-        return notifyList.remove(fromEditor);
+        return NOTIFY_LIST.remove(fromEditor);
     }    
     
     /**
@@ -129,6 +141,11 @@ public class OldMapCleaner {
                 map.count=0;
             }
         }
+    }
+    
+    public static void autoChangeToDeleteStatus(ArrayList<MapInfo> maps) {
+        for (MapInfo map:maps) if (map.count<=UNUSED_LIMIT) map.markToDelete=true;
+        //TODO return modiffed
     }
 
     

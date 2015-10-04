@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.io.File;
 import java.lang.ref.SoftReference;
+import static oldmapcleaner.parseMapNames.findFileIgnoreCase;
 
 
 /**
@@ -95,16 +96,14 @@ public class MapInfo {
             File imgF=new File(pathToLobbyCashe,fileName);
             if (IS_LINUX_FS) { // TODO it is not good bug fix for ignore map name case
                 if (!imgF.exists()) {
-                    imgF=new File(pathToLobbyCashe);
-                    for (String n:imgF.list()) if (fileName.equalsIgnoreCase(n)) {
-                        fileName=n;
-                        imgF=new File(pathToLobbyCashe,fileName);
-                        break;
-                    };
+                    imgF=findFileIgnoreCase(pathToLobbyCashe,fileName);
                 }
             }
+            if (imgF==null) {
+                System.out.println("No preview found from cashe for "+name);
+            }
             try {
-                if (imgF.exists()) img=ImageIO.read(imgF);
+                if (imgF!=null && imgF.exists()) img=ImageIO.read(imgF);
                 if (img!=null) prewiev=new SoftReference<BufferedImage>(img);
             } catch (Exception e) {
                 e.printStackTrace();

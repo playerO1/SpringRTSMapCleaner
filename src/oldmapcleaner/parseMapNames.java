@@ -34,6 +34,7 @@ package oldmapcleaner;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
+import static oldmapcleaner.MapInfo.IS_LINUX_FS;
 
 /**
  *
@@ -69,7 +70,7 @@ public class parseMapNames {
      * @return 
      */
     public static ArrayList<MapInfo> parseMIFromDemosFolder(String pathTo) {
-        File demoPath=new File(pathTo);
+        File demoPath=new File(pathTo); //TODO load from ZIP and 7Z archive too
         if (!(demoPath.isDirectory() && demoPath.exists()))
             return null;
         final String demoFileExtention=".sdf";
@@ -148,15 +149,47 @@ public class parseMapNames {
     /**
     * Return full path to all stored information about map in disk (map file + lobby cashe)
     **/
-    public static ArrayList<String> getExistMapFiles(String mapName, String mapDirectory, String lobbyCasheDirectory) {
+    public static ArrayList<File> getExistMapFiles(String mapName, String mapDirectory, String lobbyCasheDirectory) {
             String outLst[]=new String[5];
             outLst[0]=mapDirectory+mapName+".sd7";
             outLst[1]=lobbyCasheDirectory+mapName+".infoex";
             outLst[2]=lobbyCasheDirectory+mapName+".minimap.png";
             outLst[3]=lobbyCasheDirectory+mapName+".metalmap.png";
             outLst[4]=lobbyCasheDirectory+mapName+".heightmap.png";
-            ArrayList<String> existLst=new ArrayList<String>();
-            for (int i=0;i<outLst.length;i++) if (new File(outLst[i]).exists()) existLst.add(outLst[i]);
+            ArrayList<File> existLst=new ArrayList<File>();
+            for (int i=0;i<outLst.length;i++) {
+                File f=new File(outLst[i]);
+                if (IS_LINUX_FS && !f.exists()) {
+                    String pathTo=f.getParent();
+                    String fName=f.getName();
+                    f=findFileIgnoreCase(pathTo, fName);
+                }
+                if (f!=null && f.exists()) existLst.add(f);
+            }
             return existLst;
+    }
+    
+    /**
+     * For Linux OS, where file can different by char case
+     * @param filePath
+     * @param fileName
+     * @return exist file, or null
+     */
+    public static File findFileIgnoreCase(String filePath, String fileName) {
+        //if (IS_LINUX_FS) { // TODO it is not good bug fix for ignore map name case
+        File findF=new File(filePath, fileName);
+        if (!findF.exists()) {
+            findF=new File(filePath);
+            for (String n:findF.list()) //TODO list with pattern
+              if (fileName.equalsIgnoreCase(n))
+            {
+                fileName=n;
+                findF=new File(filePath,fileName);
+                break;
+            };
+            findF=null;
+        }
+        if (findF!=null && findF.exists()) return findF;
+        else return null;
     }
 }
