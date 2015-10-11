@@ -31,7 +31,7 @@
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
                   <Component id="jPanelMaps" max="32767" attributes="0"/>
-                  <Component id="jPanelLobbyCashe" alignment="1" max="32767" attributes="0"/>
+                  <Component id="jPanelLobbyCache" alignment="1" max="32767" attributes="0"/>
                   <Component id="jPanelDemos" alignment="0" max="32767" attributes="0"/>
                   <Component id="jPanel1" alignment="0" max="32767" attributes="0"/>
               </Group>
@@ -45,7 +45,7 @@
               <EmptySpace max="-2" attributes="0"/>
               <Component id="jPanelMaps" min="-2" max="-2" attributes="0"/>
               <EmptySpace type="unrelated" max="-2" attributes="0"/>
-              <Component id="jPanelLobbyCashe" min="-2" max="-2" attributes="0"/>
+              <Component id="jPanelLobbyCache" min="-2" max="-2" attributes="0"/>
               <EmptySpace type="unrelated" max="-2" attributes="0"/>
               <Component id="jPanelDemos" min="-2" max="-2" attributes="0"/>
               <EmptySpace type="unrelated" max="-2" attributes="0"/>
@@ -91,7 +91,7 @@
                       <Component id="jLblMapStatus" min="-2" max="-2" attributes="0"/>
                       <Component id="jBtnLoadMaps" min="-2" max="-2" attributes="0"/>
                   </Group>
-                  <EmptySpace pref="28" max="32767" attributes="0"/>
+                  <EmptySpace pref="44" max="32767" attributes="0"/>
               </Group>
           </Group>
         </DimensionLayout>
@@ -117,11 +117,11 @@
         </Component>
       </SubComponents>
     </Container>
-    <Container class="javax.swing.JPanel" name="jPanelLobbyCashe">
+    <Container class="javax.swing.JPanel" name="jPanelLobbyCache">
       <Properties>
         <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
           <Border info="org.netbeans.modules.form.compat2.border.TitledBorderInfo">
-            <TitledBorder title="Spring Lobby cashe folder for prewiew"/>
+            <TitledBorder title="Spring Lobby cache folder for prewiew"/>
           </Border>
         </Property>
       </Properties>
@@ -205,7 +205,7 @@
         </Component>
         <Component class="javax.swing.JLabel" name="jLabelDemoStatus">
           <Properties>
-            <Property name="text" type="java.lang.String" value="Read statistic of usages from path/ZIP/7z"/>
+            <Property name="text" type="java.lang.String" value="Read statistic of usages from path/ZIP/7z. Can split 2 folder by &quot;:&quot;"/>
           </Properties>
         </Component>
       </SubComponents>

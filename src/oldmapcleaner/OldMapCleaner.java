@@ -76,7 +76,7 @@ public class OldMapCleaner {
         String springPath="/home/user2/.config/spring/";
         String demosPath=springPath+"demos";
         String mapsPath=springPath+"maps";
-        String lobbyMapCashePath="/home/user2/.springlobby/cache/";
+        String lobbyMapCachePath="/home/user2/.springlobby/cache/";
         */
 
         DataSourceGUI.main(args);
@@ -105,7 +105,7 @@ public class OldMapCleaner {
         Collections.sort(maps, new SortByName()); //Sort test
 
         MapListGUI guiForm=new MapListGUI();
-        guiForm.setMapList(maps, lobbyMapCashePath);
+        guiForm.setMapList(maps, lobbyMapCachePath);
         guiForm.setVisible(true);
         
         System.out.println("End.");

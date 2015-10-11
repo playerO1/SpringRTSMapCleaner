@@ -7,7 +7,6 @@ package oldmapcleaner;
 
 import java.awt.Color;
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -22,7 +21,7 @@ import static oldmapcleaner.OldMapCleaner.autoChangeToDeleteStatus;
 public class DataSourceGUI extends javax.swing.JFrame implements MapUpdateListener {
 
     public ArrayList<MapInfo> maps, demos;
-    public String mapsPath, demosPath, lobbyMapCashePath;
+    public String mapsPath, demosPath, lobbyMapCachePath;
     private Color defaultTextBackground;
     
 // TODO default path of some specific OS and Spring engine
@@ -47,13 +46,13 @@ public class DataSourceGUI extends javax.swing.JFrame implements MapUpdateListen
         demosPath=workPath+jTxtDemo.getText();
         jTxtDemo.setText(demosPath);
         
-        lobbyMapCashePath=jTxtCashe.getText();
-        path=new File(lobbyMapCashePath);
+        lobbyMapCachePath=jTxtCashe.getText();
+        path=new File(lobbyMapCachePath);
         if (!path.exists() || !path.isDirectory()) {
-            lobbyMapCashePath=workPath+lobbyMapCashePath;
-            jTxtCashe.setText(lobbyMapCashePath);
-            path=new File(lobbyMapCashePath);
-            if (!path.exists() || !path.isDirectory()) lobbyMapCashePath=null;
+            lobbyMapCachePath=workPath+lobbyMapCachePath;
+            jTxtCashe.setText(lobbyMapCachePath);
+            path=new File(lobbyMapCachePath);
+            if (!path.exists() || !path.isDirectory()) lobbyMapCachePath=null;
         }
         
         this.maps=new ArrayList<MapInfo>();
@@ -77,7 +76,7 @@ public class DataSourceGUI extends javax.swing.JFrame implements MapUpdateListen
         jBtnLoadMaps = new javax.swing.JButton();
         jTxtMaps = new javax.swing.JTextField();
         jLblMapStatus = new javax.swing.JLabel();
-        jPanelLobbyCashe = new javax.swing.JPanel();
+        jPanelLobbyCache = new javax.swing.JPanel();
         jTxtCashe = new javax.swing.JTextField();
         jPanelDemos = new javax.swing.JPanel();
         jTxtDemo = new javax.swing.JTextField();
@@ -135,24 +134,24 @@ public class DataSourceGUI extends javax.swing.JFrame implements MapUpdateListen
                 .addGroup(jPanelMapsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLblMapStatus)
                     .addComponent(jBtnLoadMaps))
-                .addContainerGap(28, Short.MAX_VALUE))
+                .addContainerGap(44, Short.MAX_VALUE))
         );
 
-        jPanelLobbyCashe.setBorder(javax.swing.BorderFactory.createTitledBorder("Spring Lobby cashe folder for prewiew"));
+        jPanelLobbyCache.setBorder(javax.swing.BorderFactory.createTitledBorder("Spring Lobby cache folder for prewiew"));
 
         jTxtCashe.setText(".springlobby/cache/");
 
-        javax.swing.GroupLayout jPanelLobbyCasheLayout = new javax.swing.GroupLayout(jPanelLobbyCashe);
-        jPanelLobbyCashe.setLayout(jPanelLobbyCasheLayout);
-        jPanelLobbyCasheLayout.setHorizontalGroup(
-            jPanelLobbyCasheLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanelLobbyCasheLayout.createSequentialGroup()
+        javax.swing.GroupLayout jPanelLobbyCacheLayout = new javax.swing.GroupLayout(jPanelLobbyCache);
+        jPanelLobbyCache.setLayout(jPanelLobbyCacheLayout);
+        jPanelLobbyCacheLayout.setHorizontalGroup(
+            jPanelLobbyCacheLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanelLobbyCacheLayout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(jTxtCashe)
                 .addContainerGap())
         );
-        jPanelLobbyCasheLayout.setVerticalGroup(
-            jPanelLobbyCasheLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+        jPanelLobbyCacheLayout.setVerticalGroup(
+            jPanelLobbyCacheLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(jTxtCashe, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
         );
 
@@ -167,7 +166,7 @@ public class DataSourceGUI extends javax.swing.JFrame implements MapUpdateListen
             }
         });
 
-        jLabelDemoStatus.setText("Read statistic of usages from path/ZIP/7z");
+        jLabelDemoStatus.setText("Read statistic of usages from path/ZIP/7z. Can split 2 folder by \":\"");
 
         javax.swing.GroupLayout jPanelDemosLayout = new javax.swing.GroupLayout(jPanelDemos);
         jPanelDemos.setLayout(jPanelDemosLayout);
@@ -286,7 +285,7 @@ public class DataSourceGUI extends javax.swing.JFrame implements MapUpdateListen
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jPanelMaps, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jPanelLobbyCashe, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jPanelLobbyCache, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jPanelDemos, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
@@ -297,7 +296,7 @@ public class DataSourceGUI extends javax.swing.JFrame implements MapUpdateListen
                 .addContainerGap()
                 .addComponent(jPanelMaps, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jPanelLobbyCashe, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(jPanelLobbyCache, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jPanelDemos, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
@@ -322,26 +321,34 @@ public class DataSourceGUI extends javax.swing.JFrame implements MapUpdateListen
 
     private void jButtonLoadDemoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonLoadDemoActionPerformed
         demosPath=jTxtDemo.getText();
-        if (!demosPath.endsWith(File.separator)) demosPath+=File.separator;
-        File path=new File(demosPath);
-        if (!path.exists()) {
-            jLabelDemoStatus.setText(pathNotFoundDecorator(demosPath));
-        } else {
-            demos=parseMapNames.parseMIFromDemosFolder(demosPath); // TODO load from 2 or more different path and add into one list.
-            jLabelDemoStatus.setText("Read demo files for "+demos.size()+" maps.");
+        String[] subPath=demosPath.split(File.pathSeparator); //TODO checl split and regular template
+        demos=null;
+        boolean noErrors = subPath.length>0;
+        for (String demoPath:subPath) {
+            demoPath=demoPath.trim();// for skip space
+            if (!demoPath.endsWith(File.separator)) demoPath+=File.separator;
+            File path=new File(demoPath);
+            if (!path.exists()) {
+                noErrors=false;
+                jLabelDemoStatus.setText(pathNotFoundDecorator(demoPath));
+            } else {
+                ArrayList<MapInfo> demo2=parseMapNames.parseMIFromDemosFolder(demoPath);
+                if (demos==null) demos=demo2;
+                else MapInfo.mergeList(demos, demo2);
+            }
         }
+        if (noErrors) jLabelDemoStatus.setText("Read demo files for "+demos.size()+" maps.");
     }//GEN-LAST:event_jButtonLoadDemoActionPerformed
 
     private void jButtonOpenGUIListActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonOpenGUIListActionPerformed
         if (maps.isEmpty()) jBtnLoadMapsActionPerformed(null); // if user forgot press it
         if (demos.isEmpty()) jButtonLoadDemoActionPerformed(null);
         
-        lobbyMapCashePath=jTxtCashe.getText();
-        if (!lobbyMapCashePath.endsWith(File.separator)) lobbyMapCashePath+=File.separator;
-        File path=new File(lobbyMapCashePath);
+        if (!lobbyMapCachePath.endsWith(File.separator)) lobbyMapCachePath+=File.separator;
+        File path=new File(lobbyMapCachePath);
         if (!path.exists() || !path.isDirectory()) {
             jTxtCashe.setBackground(Color.red);
-            lobbyMapCashePath=null;
+            lobbyMapCachePath=null;
         } else {
             jTxtCashe.setBackground(defaultTextBackground);
         }
@@ -376,7 +383,7 @@ public class DataSourceGUI extends javax.swing.JFrame implements MapUpdateListen
         }
 
         MapListGUI guiForm=new MapListGUI();
-        guiForm.setMapList(maps, lobbyMapCashePath);
+        guiForm.setMapList(maps, lobbyMapCachePath);
         guiForm.setVisible(true);
         //TODO launch GUI, apply statistics!!
     }//GEN-LAST:event_jButtonOpenGUIListActionPerformed
@@ -394,7 +401,7 @@ public class DataSourceGUI extends javax.swing.JFrame implements MapUpdateListen
         
         ArrayList<File> toDeleteFiles=new ArrayList<File>();
         for (MapInfo mi:toDeleteSelect) {
-            toDeleteFiles.addAll(parseMapNames.getExistMapFiles(mi.name, mapsPath, lobbyMapCashePath));
+            toDeleteFiles.addAll(parseMapNames.getExistMapFiles(mi.name, mapsPath, lobbyMapCachePath));
         };
         long filesSize=0;
         for (File f:toDeleteFiles) filesSize+=f.length();
@@ -429,7 +436,7 @@ public class DataSourceGUI extends javax.swing.JFrame implements MapUpdateListen
     private void jButtonShowToDeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonShowToDeleteActionPerformed
         ArrayList<MapInfo> toDeleteSelect=OldMapCleaner.selectByDeleting(maps, true);
         MapListGUI guiForm=new MapListGUI();
-        guiForm.setMapList(toDeleteSelect, lobbyMapCashePath);
+        guiForm.setMapList(toDeleteSelect, lobbyMapCachePath);
         guiForm.setVisible(true);
     }//GEN-LAST:event_jButtonShowToDeleteActionPerformed
 
@@ -494,7 +501,7 @@ public class DataSourceGUI extends javax.swing.JFrame implements MapUpdateListen
     private javax.swing.JLabel jLblMapStatus;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanelDemos;
-    private javax.swing.JPanel jPanelLobbyCashe;
+    private javax.swing.JPanel jPanelLobbyCache;
     private javax.swing.JPanel jPanelMaps;
     private javax.swing.JTextField jTxtCashe;
     private javax.swing.JTextField jTxtDemo;

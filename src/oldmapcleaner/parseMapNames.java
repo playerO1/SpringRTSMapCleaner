@@ -66,16 +66,18 @@ public class parseMapNames {
     
     /**
      * search map from demo files
+     * load from ZIP and 7Z archive support too
      * @param pathTo
      * @return 
      */
     public static ArrayList<MapInfo> parseMIFromDemosFolder(String pathTo) {
-        File demoPath=new File(pathTo); //TODO load from ZIP and 7Z archive too
-        if (!(demoPath.isDirectory() && demoPath.exists()))
+        File demoPath=new File(pathTo);
+        if (!(demoPath.exists()))
             return null;
         final String demoFileExtention=".sdf";
         ArrayList<MapInfo> mapLst=new ArrayList<MapInfo>();
-        for (File f:demoPath.listFiles()) if (f.isFile()){
+        
+        for (FileNamesSource.FileInfo f:FileNamesSource.getFileFrom(demoPath)) if (f.isFile()){
             String fname=f.getName();
             if (fname.endsWith(demoFileExtention))
             {
