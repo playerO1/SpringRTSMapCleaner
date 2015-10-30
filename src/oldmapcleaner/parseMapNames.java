@@ -131,6 +131,7 @@ public class parseMapNames {
                 String mname=fname.substring(0,fname.length()-mapFileExtention.length());
                 MapInfo mi=new MapInfo(mname);
                 mi.fileSize=f.length();
+                mi.mapFileTime=new Date(f.lastModified()); // time when last download map
                 mapLst.add(mi);
             }
         }        

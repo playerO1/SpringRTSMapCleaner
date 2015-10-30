@@ -205,6 +205,16 @@ public class OldMapCleaner {
         }
     }
     
+    public static class SortByDownloadTime extends MapInfoDescComparator {
+        @Override
+        public int compare(MapInfo a, MapInfo b) {
+            if (a.mapFileTime==null && b.mapFileTime==null) return 0;
+            if (a.mapFileTime!=null && b.mapFileTime==null) return FIRST;
+            if (a.mapFileTime==null && b.mapFileTime!=null) return LAST;
+            return a.mapFileTime.compareTo(b.mapFileTime)*INVERT;
+        }
+    }
+    
     public static class SortByEffective extends MapInfoDescComparator {
         @Override
         public int compare(MapInfo a, MapInfo b) {

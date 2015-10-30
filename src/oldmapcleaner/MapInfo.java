@@ -24,6 +24,7 @@ public class MapInfo {
     public final String name; // name of map
     private final String upperName; // for compare ignore case
     public Date firstTime, lastTime; // first and last playing/spectating time on this map
+    public Date mapFileTime;
     public int count; // cout of using this map
     public long fileSize = 0; // size of sd7 file, set only by loadMIMapFiles
 	public boolean markToDelete;// touo use it.

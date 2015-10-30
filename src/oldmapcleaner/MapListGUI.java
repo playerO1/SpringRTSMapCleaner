@@ -272,14 +272,16 @@ public class MapListGUI extends javax.swing.JFrame implements MapUpdateListener{
             jlPrewiew.setText(null);
         }
         String txt="Size <b>"+fileSizeToStr(mi.fileSize)+"</b>, used "+mi.count;
+        final SimpleDateFormat dateFormat=new SimpleDateFormat("dd.MM.yyyy");//TODO date ??? DateFormat.SHORT;
         if (mi.firstTime!=null) {
             txt+="<br/>";
-            SimpleDateFormat dateFormat=new SimpleDateFormat("dd.MM.yyyy");//TODO date ??? DateFormat.SHORT;
             if (mi.firstTime!=mi.lastTime)
                 txt+="First "+dateFormat.format(mi.firstTime)+"; ";
             txt+="Last <b>"+dateFormat.format(mi.lastTime)+"</b>";
         }
-        if (mi.markToDelete) txt+="<br><font color=red>(mark to delete)</font>";
+        if (mi.mapFileTime!=null) txt+="<br/>Download date: "+dateFormat.format(mi.mapFileTime);
+        //new Date(f.lastModified())
+        if (mi.markToDelete) txt+="<br/><font color=red>(mark to delete)</font>";
         jlSelectMapInfo.setText("<html>"+txt+"</html>");
     }
     

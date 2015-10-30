@@ -204,8 +204,7 @@ public class DataSourceGUI extends javax.swing.JFrame implements MapUpdateListen
 
         jLabel1.setText("sorted by");
 
-        jCBSortBy.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "no sort", "name", "playing", "size", "last using date", "effective" }));
-        jCBSortBy.setSelectedIndex(1);
+        jCBSortBy.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "no sort", "name", "playing", "size", "last using date", "download date", "effective" }));
 
         jBtnDoClear.setText("Remove selected maps");
         jBtnDoClear.setEnabled(false);
@@ -375,7 +374,10 @@ public class DataSourceGUI extends javax.swing.JFrame implements MapUpdateListen
             case 4: // last using date.
                 Collections.sort(maps, new OldMapCleaner.SortByLastTime()); 
                 break;
-            case 5: // .. effective
+            case 5: // download time
+                Collections.sort(maps, new OldMapCleaner.SortByDownloadTime()); 
+                break;
+            case 6: // .. effective
                 Collections.sort(maps, new OldMapCleaner.SortByEffective()); 
                 break;
             default:
