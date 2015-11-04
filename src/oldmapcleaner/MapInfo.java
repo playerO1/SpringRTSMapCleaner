@@ -87,27 +87,31 @@ public class MapInfo {
     	/**
 	* Load prewiev of map from lobby cashe
 	* and add it to memory cashe into mi
-	* @param pathToLobbyCashe if null then do not load, use only memory cashe.
+	* @param pathToLobbyCashe if null then do not load, use only memory cashe, if more that one - checl exist files on all.
 	**/
-    public BufferedImage loadPrewiev(String pathToLobbyCashe) {
+    public BufferedImage loadPrewiev(String[] pathToLobbyCashe) {
         BufferedImage img=null;
         if (prewiev!=null) img=prewiev.get();
         if (img==null && pathToLobbyCashe!=null) {
             String fileName=name+".minimap.png";
-            File imgF=new File(pathToLobbyCashe,fileName);
-            if (IS_LINUX_FS) { // TODO it is not good bug fix for ignore map name case
-                if (!imgF.exists()) {
-                    imgF=findFileIgnoreCase(pathToLobbyCashe,fileName);
+            File imgF=null;
+            for (String path2:pathToLobbyCashe) if (path2!=null) {
+                imgF=new File(path2,fileName);
+                if (IS_LINUX_FS) { // TODO it is not good bug fix for ignore map name case
+                    if (!imgF.exists()) {
+                        imgF=findFileIgnoreCase(path2,fileName);
+                    }
                 }
+                try {
+                    if (imgF!=null && imgF.exists()) img=ImageIO.read(imgF);
+                    if (img!=null) prewiev=new SoftReference<BufferedImage>(img);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                if (img!=null) break;
             }
             if (imgF==null) {
                 System.out.println("No preview found from cashe for "+name);
-            }
-            try {
-                if (imgF!=null && imgF.exists()) img=ImageIO.read(imgF);
-                if (img!=null) prewiev=new SoftReference<BufferedImage>(img);
-            } catch (Exception e) {
-                e.printStackTrace();
             }
         }
         return img;

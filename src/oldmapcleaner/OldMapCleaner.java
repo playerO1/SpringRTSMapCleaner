@@ -232,5 +232,15 @@ public class OldMapCleaner {
             return e;
         }
     }
+    
+    public static class SortByNameLength  extends MapInfoDescComparator {
+        @Override
+        public int compare(MapInfo ma, MapInfo mb) {
+            int a=ma.name.length();
+            int b=mb.name.length();
+            return a < b ? LAST :
+                    a == b ? 0 : FIRST;
+        }
+    }
 
 }

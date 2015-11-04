@@ -22,6 +22,7 @@ public class DataSourceGUI extends javax.swing.JFrame implements MapUpdateListen
 
     public ArrayList<MapInfo> maps, demos;
     public String mapsPath, demosPath, lobbyMapCachePath;
+    private String allSLCashePath[]; // cashe folders.
     private Color defaultTextBackground;
     
 // TODO default path of some specific OS and Spring engine
@@ -46,14 +47,14 @@ public class DataSourceGUI extends javax.swing.JFrame implements MapUpdateListen
         demosPath=workPath+jTxtDemo.getText();
         jTxtDemo.setText(demosPath);
         
-        lobbyMapCachePath=jTxtCashe.getText();
-        path=new File(lobbyMapCachePath);
-        if (!path.exists() || !path.isDirectory()) {
-            lobbyMapCachePath=workPath+lobbyMapCachePath;
-            jTxtCashe.setText(lobbyMapCachePath);
-            path=new File(lobbyMapCachePath);
-            if (!path.exists() || !path.isDirectory()) lobbyMapCachePath=null;
-        }
+//        lobbyMapCachePath=jTxtCashe.getText();
+//        path=new File(lobbyMapCachePath);
+//        if (!path.exists() || !path.isDirectory()) {
+        lobbyMapCachePath=workPath+".springlobby/cache/"+File.pathSeparator+workPath+".config/spring/cache/SpringLobby/";
+        jTxtCashe.setText(lobbyMapCachePath);
+//            path=new File(lobbyMapCachePath);
+//            if (!path.exists() || !path.isDirectory()) lobbyMapCachePath=null;
+//        }
         
         this.maps=new ArrayList<MapInfo>();
         this.demos=new ArrayList<MapInfo>();
@@ -204,7 +205,7 @@ public class DataSourceGUI extends javax.swing.JFrame implements MapUpdateListen
 
         jLabel1.setText("sorted by");
 
-        jCBSortBy.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "no sort", "name", "playing", "size", "last using date", "download date", "effective" }));
+        jCBSortBy.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "no sort", "name", "playing", "size", "last using date", "download date", "effective", "name length" }));
 
         jBtnDoClear.setText("Remove selected maps");
         jBtnDoClear.setEnabled(false);
@@ -343,13 +344,17 @@ public class DataSourceGUI extends javax.swing.JFrame implements MapUpdateListen
         if (maps.isEmpty()) jBtnLoadMapsActionPerformed(null); // if user forgot press it
         if (demos.isEmpty()) jButtonLoadDemoActionPerformed(null);
         
-        if (!lobbyMapCachePath.endsWith(File.separator)) lobbyMapCachePath+=File.separator;
-        File path=new File(lobbyMapCachePath);
-        if (!path.exists() || !path.isDirectory()) {
-            jTxtCashe.setBackground(Color.red);
-            lobbyMapCachePath=null;
-        } else {
-            jTxtCashe.setBackground(defaultTextBackground);
+        allSLCashePath=lobbyMapCachePath.split(File.pathSeparator);
+        for (int i=0;i<allSLCashePath.length;i++) {
+            allSLCashePath[i]=allSLCashePath[i].trim();
+            if (!allSLCashePath[i].endsWith(File.separator)) allSLCashePath[i]+=File.separator;
+            File path=new File(allSLCashePath[i]);
+            if (!path.exists() || !path.isDirectory()) {
+                jTxtCashe.setBackground(Color.red);
+                allSLCashePath[i]=null;
+            } else {
+                jTxtCashe.setBackground(defaultTextBackground);
+            }
         }
         
         applyStatistics(maps, demos, true); // initialize statistic to maps
@@ -380,12 +385,15 @@ public class DataSourceGUI extends javax.swing.JFrame implements MapUpdateListen
             case 6: // .. effective
                 Collections.sort(maps, new OldMapCleaner.SortByEffective()); 
                 break;
+            case 7: // number of map name symbols
+                Collections.sort(maps, new OldMapCleaner.SortByNameLength()); 
+                break;
             default:
                 throw new UnsupportedOperationException("No sort type found for jCBSortBy.getSelectedIndex()="+jCBSortBy.getSelectedIndex());
         }
 
         MapListGUI guiForm=new MapListGUI();
-        guiForm.setMapList(maps, lobbyMapCachePath);
+        guiForm.setMapList(maps, allSLCashePath);
         guiForm.setVisible(true);
         //TODO launch GUI, apply statistics!!
     }//GEN-LAST:event_jButtonOpenGUIListActionPerformed
@@ -438,7 +446,7 @@ public class DataSourceGUI extends javax.swing.JFrame implements MapUpdateListen
     private void jButtonShowToDeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonShowToDeleteActionPerformed
         ArrayList<MapInfo> toDeleteSelect=OldMapCleaner.selectByDeleting(maps, true);
         MapListGUI guiForm=new MapListGUI();
-        guiForm.setMapList(toDeleteSelect, lobbyMapCachePath);
+        guiForm.setMapList(toDeleteSelect, allSLCashePath);
         guiForm.setVisible(true);
     }//GEN-LAST:event_jButtonShowToDeleteActionPerformed
 

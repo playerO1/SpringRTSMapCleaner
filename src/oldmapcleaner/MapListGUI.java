@@ -32,7 +32,7 @@ public class MapListGUI extends javax.swing.JFrame implements MapUpdateListener{
     private List<MapInfo> maps;
     private List<MapInfo> mapsDataSource; // real data source, can be modifed then send onMapUpdate
     private DefaultListModel showLst;
-    private String lobbyCashePath;
+    private String[] lobbyCashePathLst; // all path wint map preview cashe
     public long statAllSize, statUnusedSize, statToDeleteSize;
     public int statUnusingMaps, statUsedPlays, statToDeleteCount;
     public float statAverageUsedPerPlayableMap;
@@ -44,9 +44,9 @@ public class MapListGUI extends javax.swing.JFrame implements MapUpdateListener{
      * @param _maps
      * @param _lobbyCashePath 
      */
-    public void setMapList(List<MapInfo> _maps,String _lobbyCashePath) {
+    public void setMapList(List<MapInfo> _maps,String _lobbyCashePath[]) {
         this.mapsDataSource=_maps;
-        this.lobbyCashePath=_lobbyCashePath;
+        this.lobbyCashePathLst=_lobbyCashePath;
         this.maps=new ArrayList<MapInfo>(_maps); // clone for retain index
         showLst = new DefaultListModel();
         
@@ -263,7 +263,7 @@ public class MapListGUI extends javax.swing.JFrame implements MapUpdateListener{
             return;
         }
         jlSelectMapName.setText(mi.name);
-        BufferedImage img=mi.loadPrewiev(lobbyCashePath);
+        BufferedImage img=mi.loadPrewiev(lobbyCashePathLst);
         if (img==null) {
             jlPrewiew.setIcon(null);
             jlPrewiew.setText("No cashe prewiev for "+jListMaps.getSelectedIndex());
@@ -386,7 +386,7 @@ public class MapListGUI extends javax.swing.JFrame implements MapUpdateListener{
             if (!haveNotFound) return;
         }
         //TODO or If mapsDataSource modifed <> maps... compare by size?
-        setMapList(mapsDataSource,lobbyCashePath); //just reinit list box.
+        setMapList(mapsDataSource,lobbyCashePathLst); //just reinit list box.
         //TODO too much lags with DefaultListModel update.
     }
     
